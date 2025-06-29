@@ -1,11 +1,9 @@
 import streamlit as st
 import json
 import os
-import subprocess
 
 USER_DB_FILE = "users.json"
 
-# โหลดข้อมูลผู้ใช้
 def load_users():
     if not os.path.exists(USER_DB_FILE):
         with open(USER_DB_FILE, "w", encoding="utf-8") as f:
@@ -13,11 +11,12 @@ def load_users():
     with open(USER_DB_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# ฟังก์ชันหลัก
-def main():
-    st.title("Civloop")
+if "page" not in st.session_state:
+    st.session_state.page = "login"
 
-    email = st.text_input("อีเมล")
+def login_page():
+    st.title("🔐 เข้าสู่ระบบ")
+    email = st.text_input("อีเมล (@gmail.com)")
     password = st.text_input("รหัสผ่าน", type="password")
 
     col1, col2 = st.columns(2)
@@ -37,12 +36,14 @@ def main():
 
     with col2:
         if st.button("ลงทะเบียน"):
-            # เรียกใช้ไฟล์ PII.py
-            try:
-                subprocess.Popen(["python", "PII.py"])
-                st.info("กรุณารอสักครู่")
-            except Exception as e:
-                st.error(f"เกิดข้อผิดพลาด: {e}")
+            st.session_state.page = "register"
 
-if __name__ == "__main__":
-    main()
+def register_page():
+    from PII import show_registration_form
+    show_registration_form()
+
+# Routing
+if st.session_state.page == "login":
+    login_page()
+elif st.session_state.page == "register":
+    register_page()
