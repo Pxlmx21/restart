@@ -15,9 +15,9 @@ def load_users():
 
 # ฟังก์ชันหลัก
 def main():
-    st.title("🔐 ระบบล็อกอิน")
+    st.title("Civloop")
 
-    email = st.text_input("อีเมล (ต้องลงท้ายด้วย @gmail.com)")
+    email = st.text_input("อีเมล")
     password = st.text_input("รหัสผ่าน", type="password")
 
     col1, col2 = st.columns(2)
