@@ -40,7 +40,7 @@ def main():
             # เรียกใช้ไฟล์ PII.py
             try:
                 subprocess.Popen(["python", "PII.py"])
-                st.info("เปิดหน้า PII.py แล้ว (กรุณารอสักครู่)")
+                st.info("กรุณารอสักครู่")
             except Exception as e:
                 st.error(f"เกิดข้อผิดพลาด: {e}")
 
