@@ -1,65 +1,48 @@
 import streamlit as st
 import json
 import os
+import subprocess
 
-# ไฟล์จำลองฐานข้อมูลผู้ใช้
 USER_DB_FILE = "users.json"
 
-# โหลดข้อมูลผู้ใช้จากไฟล์ JSON
-@st.cache_data
+# โหลดข้อมูลผู้ใช้
 def load_users():
     if not os.path.exists(USER_DB_FILE):
-        with open(USER_DB_FILE, "w") as f:
+        with open(USER_DB_FILE, "w", encoding="utf-8") as f:
             json.dump({}, f)
-    with open(USER_DB_FILE, "r") as f:
+    with open(USER_DB_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# บันทึกข้อมูลผู้ใช้ลงไฟล์
-def save_users(users):
-    with open(USER_DB_FILE, "w") as f:
-        json.dump(users, f, indent=2)
+# ฟังก์ชันหลัก
+def main():
+    st.title("🔐 ระบบล็อกอิน")
 
-# ฟังก์ชันลงทะเบียน
-def register():
-    st.title("\U0001F4DD ลงทะเบียน")
-    email_input = st.text_input("อีเมล (เฉพาะ @gmail.com)")
+    email = st.text_input("อีเมล (ต้องลงท้ายด้วย @gmail.com)")
     password = st.text_input("รหัสผ่าน", type="password")
 
-    if st.button("ลงทะเบียน"):
-        if not email_input.endswith("@gmail.com"):
-            st.error("อีเมลต้องลงท้ายด้วย @gmail.com")
-            return
+    col1, col2 = st.columns(2)
 
-        users = load_users()
-        if email_input in users:
-            st.warning("มีอีเมลนี้ในระบบแล้ว")
-        else:
-            users[email_input] = {"password": password}
-            save_users(users)
-            st.success("ลงทะเบียนสำเร็จ")
-
-# ฟังก์ชันเข้าสู่ระบบ
-
-def login():
-    st.title("\U0001F511 เข้าสู่ระบบ")
-    email_input = st.text_input("อีเมล")
-    password = st.text_input("รหัสผ่าน", type="password")
-
-    if st.button("เข้าสู่ระบบ"):
-        users = load_users()
-        if email_input in users:
-            if users[email_input]["password"] == password:
-                st.success(f"ยินดีต้อนรับ {email_input}")
+    with col1:
+        if st.button("เข้าสู่ระบบ"):
+            if not email.endswith("@gmail.com"):
+                st.error("อีเมลต้องลงท้ายด้วย @gmail.com")
             else:
-                st.error("รหัสผ่านไม่ถูกต้อง")
-        else:
-            st.error("ไม่พบอีเมลดังกล่าวในระบบ")
+                users = load_users()
+                if email not in users:
+                    st.error("ไม่พบอีเมลดังกล่าวในระบบ")
+                elif users[email]["password"] != password:
+                    st.error("รหัสผ่านไม่ถูกต้อง")
+                else:
+                    st.success(f"ยินดีต้อนรับ {email}")
 
-# เมนูเลือก
-st.sidebar.title("เมนู")
-page = st.sidebar.radio("เลือกหน้า", ["เข้าสู่ระบบ", "ลงทะเบียน"])
+    with col2:
+        if st.button("ลงทะเบียน"):
+            # เรียกใช้ไฟล์ PII.py
+            try:
+                subprocess.Popen(["python", "PII.py"])
+                st.info("เปิดหน้า PII.py แล้ว (กรุณารอสักครู่)")
+            except Exception as e:
+                st.error(f"เกิดข้อผิดพลาด: {e}")
 
-if page == "เข้าสู่ระบบ":
-    login()
-else:
-    register()
+if __name__ == "__main__":
+    main()
